@@ -4,7 +4,6 @@ const { kv } =  require("@vercel/kv");
 
 const app = express();
 app.use(cors());
-const PORT = 5000;
 
 const dataSetKey = "data"
 const lastOpenedDataKey = "lastOpened"
@@ -82,8 +81,27 @@ app.get("/api/can-open-box", (req, res) => {
   res.json({ canOpen });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
+app.listen(3000, () => {
+  console.log(`Server is running on http://localhost:3000`);
 });
 
-module.exports = app;
+const allowCors = fn => async (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  // another common pattern
+  // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  )
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
+  return await fn(req, res)
+}
+
+module.exports = allowCors(app);
