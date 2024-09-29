@@ -1,12 +1,12 @@
-const express = require('express')
-const cors = require('cors')
-const { kv } =  require("@vercel/kv");
+const express = require("express");
+const cors = require("cors");
+const { kv } = require("@vercel/kv");
 
 const app = express();
 app.use(cors());
 
-const dataSetKey = "data"
-const lastOpenedDataKey = "lastOpened"
+const dataSetKey = "data";
+const lastOpenedDataKey = "lastOpened";
 
 async function hasOpenedToday() {
   const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
@@ -52,26 +52,19 @@ app.post("/api/images/:boxType", async (req, res) => {
 
   const data = await kv.hget(boxType);
 
-
-
   if (data === "") {
-      // Update the opened images and the last opened date
-await kv.hset(dataSetKey, boxType, data.concat("", imageUrl))
-await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString())
+    // Update the opened images and the last opened date
+    await kv.hset(dataSetKey, boxType, data.concat("", imageUrl));
+    await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString());
   }
 
   if (!data) {
     return res.status(400).json({ error: "Invalid box type" });
   }
 
-        // Update the opened images and the last opened date
-await kv.hset(dataSetKey, boxType, data.concat(",", imageUrl))
-await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString())
-
-
-
-
-
+  // Update the opened images and the last opened date
+  await kv.hset(dataSetKey, boxType, data.concat(",", imageUrl));
+  await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString());
 
   res.status(201).json({ message: "Image URL saved successfully" });
 });
@@ -87,21 +80,24 @@ app.listen(3000, () => {
   console.log(`Server is running on http://localhost:3000`);
 });
 
-const allowCors = fn => async (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true)
-  res.setHeader('Access-Control-Allow-Origin', '*')
+const allowCors = (fn) => async (req, res) => {
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Origin", "*");
   // another common pattern
   // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
   res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  )
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
   }
-  return await fn(req, res)
-}
+  return await fn(req, res);
+};
 
 module.exports = allowCors(app);
