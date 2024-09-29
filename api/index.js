@@ -1,14 +1,16 @@
-import express from 'express';
-import cors from "cors";
-import { kv } from "@vercel/kv";
+const express = require('express')
+const cors = require('cors')
+const { kv } =  require("@vercel/kv");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 const PORT = 5000;
 
+const dataSetKey = "data"
+const lastOpenedDataKey = "lastOpened"
+
 async function hasOpenedToday() {
-  const data = await JSON.parse(kv.hGetAll("data"));
+  const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
   const currentTime = new Date();
   const resetTime = new Date();
   resetTime.setUTCHours(8, 0, 0, 0); // 10 AM GMT+2 is 8 AM UTC
@@ -17,24 +19,26 @@ async function hasOpenedToday() {
     resetTime.setUTCDate(resetTime.getUTCDate() - 1); // Go back one day if current time is before reset time
   }
 
-  const lastOpenedDate = new Date(data.latsOpened.date);
+  const lastOpenedDate = new Date(lastOpenedData);
   return lastOpenedDate >= resetTime;
 }
 
 app.get("/api/images/:boxType", async (req, res) => {
   const { boxType } = req.params;
-  const data = await kv.hGetAll("data");
+  const data = await kv.hget(dataSetKey, boxType);
 
-  if (!data[boxType]) {
+  if (data) {
     return res.status(400).json({ error: "Invalid box type" });
   }
 
-  res.json(data[boxType]);
+  res.json(data);
 });
 
 app.post("/api/images/:boxType", async (req, res) => {
   const { boxType } = req.params;
   const { imageUrl } = req.body;
+
+  console.log(req);
 
   if (hasOpenedToday()) {
     return res.status(403).json({
@@ -47,19 +51,28 @@ app.post("/api/images/:boxType", async (req, res) => {
     return res.status(400).json({ error: "Image URL is required" });
   }
 
-  const data = await kv.hGetAll("data");
+  const data = await kv.hget(boxType);
 
-  if (!data[boxType]) {
+
+
+  if (data === "") {
+      // Update the opened images and the last opened date
+await kv.hset(dataSetKey, boxType, data.concat("", imageUrl))
+await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString())
+  }
+
+  if (!data) {
     return res.status(400).json({ error: "Invalid box type" });
   }
 
-  // Update the opened images and the last opened date
-  data[boxType].push(imageUrl);
-  data.lastOpened = {
-    date: new Date().toISOString(),
-  };
+        // Update the opened images and the last opened date
+await kv.hset(dataSetKey, boxType, data.concat(",", imageUrl))
+await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString())
 
-  await kv.hSet("data", JSON.stringify(data));
+
+
+
+
 
   res.status(201).json({ message: "Image URL saved successfully" });
 });
@@ -72,3 +85,5 @@ app.get("/api/can-open-box", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
