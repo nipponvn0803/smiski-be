@@ -1,7 +1,10 @@
 import express from 'express';
+import cors from "cors";
 import { kv } from "@vercel/kv";
 
 const app = express();
+app.use(cors());
+app.use(express.json());
 const PORT = 5000;
 
 async function hasOpenedToday() {
