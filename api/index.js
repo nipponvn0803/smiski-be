@@ -17,6 +17,19 @@ async function hasOpenedToday() {
   return lastOpenedDate >= currentTime;
 }
 
+async function debugFunction() {
+  const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
+  const currentTime = new Date();
+  const lastOpenedDate = new Date(lastOpenedData);
+  const comparision =  lastOpenedDate >= currentTime
+  return {
+    lastOpenedData,
+    lastOpenedDate,
+    currentTime,
+    comparision
+  }
+}
+
 app.get("/api/images/:boxType", async (req, res) => {
   const { boxType } = req.params;
   const data = await kv.hget(dataSetKey, boxType);
@@ -66,7 +79,8 @@ app.post("/api/images/:boxType", async (req, res) => {
 
 app.get("/api/can-open-box", (req, res) => {
   const canOpen = !hasOpenedToday();
-  res.json({ canOpen });
+  const debugValue = debugFunction()
+  res.json({ canOpen, ...debugValue });
 });
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
