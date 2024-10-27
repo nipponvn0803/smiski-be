@@ -10,16 +10,11 @@ const lastOpenedDataKey = "lastOpened";
 
 async function hasOpenedToday() {
   const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
+  console.log("lastOpenedData", lastOpenedData);
   const currentTime = new Date();
-  const resetTime = new Date();
-  resetTime.setUTCHours(8, 0, 0, 0); // 10 AM GMT+2 is 8 AM UTC
-
-  if (currentTime < resetTime) {
-    resetTime.setUTCDate(resetTime.getUTCDate() - 1); // Go back one day if current time is before reset time
-  }
-
   const lastOpenedDate = new Date(lastOpenedData);
-  return lastOpenedDate >= resetTime;
+  console.log("lastOpenedDate", lastOpenedDate);
+  return lastOpenedDate >= currentTime;
 }
 
 app.get("/api/images/:boxType", async (req, res) => {
