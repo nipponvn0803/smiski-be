@@ -83,7 +83,7 @@ app.get("/api/can-open-box", (req, res) => {
   res.json({ canOpen, ...debugValue });
 });
 
-app.get("/", (req, res) => res.send("Express on Vercel"));
+app.get("/", (req, res) => res.send("Express on Vercel123"));
 
 app.listen(3000, () => {
   console.log(`Server is running on http://localhost:3000`);
