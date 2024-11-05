@@ -35,7 +35,7 @@ app.get("/api/images/:boxType", async (req, res) => {
   const data = await kv.hget(dataSetKey, boxType);
   console.log("GET endpoint", boxType);
   console.log("GET endpoint data", data);
-  if (!data) {
+  if (!data && data !== "") {
     return res.status(400).json({ error: "Invalid box type" });
   }
 
