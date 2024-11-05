@@ -50,13 +50,15 @@ app.post("/api/images/:boxType", async (req, res) => {
   if (!imageUrl) {
     return res.status(400).json({ error: "Image URL is required" });
   }
+  console.log("boxType", boxType);
 
   const data = await kv.hget(dataSetKey, boxType);
-  console.log("boxType", data);
+  console.log(boxType, data);
 
   if (data === "") {
+    const concatURL = data + "," + imageUrl;
     // Update the opened images and the last opened date
-    await kv.hset(dataSetKey, boxType, data.concat("", imageUrl));
+    await kv.hset(dataSetKey, boxType, concatURL);
     await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString());
   }
 
