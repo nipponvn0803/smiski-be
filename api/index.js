@@ -55,15 +55,15 @@ app.post("/api/images/:boxType", async (req, res) => {
   const data = await kv.hget(dataSetKey, boxType);
   console.log(boxType, data);
 
+  if (!data && data !== "") {
+    return res.status(400).json({ error: "Invalid box type" });
+  }
+
   if (data === "") {
     const concatURL = data + "," + imageUrl;
     // Update the opened images and the last opened date
     await kv.hset(dataSetKey, boxType, concatURL);
     await kv.hset(dataSetKey, lastOpenedDataKey, new Date().toISOString());
-  }
-
-  if (!data) {
-    return res.status(400).json({ error: "Invalid box type" });
   }
 
   // Update the opened images and the last opened date
