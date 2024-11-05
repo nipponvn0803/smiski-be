@@ -21,13 +21,13 @@ async function debugFunction() {
   const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
   const currentTime = new Date();
   const lastOpenedDate = new Date(lastOpenedData);
-  const comparision =  lastOpenedDate >= currentTime
+  const comparision = lastOpenedDate >= currentTime;
   return {
     lastOpenedData,
     lastOpenedDate,
     currentTime,
-    comparision
-  }
+    comparision,
+  };
 }
 
 app.get("/api/images/:boxType", async (req, res) => {
@@ -46,13 +46,6 @@ app.post("/api/images/:boxType", async (req, res) => {
   const { imageUrl } = req.body;
 
   console.log(req);
-
-  if (hasOpenedToday()) {
-    return res.status(403).json({
-      error:
-        "You have already opened a box today. Please try again tomorrow after 10 AM GMT+2.",
-    });
-  }
 
   if (!imageUrl) {
     return res.status(400).json({ error: "Image URL is required" });
@@ -79,7 +72,7 @@ app.post("/api/images/:boxType", async (req, res) => {
 
 app.get("/api/can-open-box", async (req, res) => {
   const openedToday = await hasOpenedToday();
-  const debugValue = await debugFunction()
+  const debugValue = await debugFunction();
   res.json({ canOpen: !openedToday, ...debugValue });
 });
 
