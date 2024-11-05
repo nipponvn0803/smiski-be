@@ -9,12 +9,33 @@ const dataSetKey = "data";
 const lastOpenedDataKey = "lastOpened";
 
 async function hasOpenedToday() {
-  const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
-  console.log("lastOpenedData", lastOpenedData);
-  const currentTime = new Date();
-  const lastOpenedDate = new Date(lastOpenedData);
-  console.log("lastOpenedDate", lastOpenedDate);
-  return lastOpenedDate >= currentTime;
+  try {
+    const lastOpenedData = await kv.hget(dataSetKey, lastOpenedDataKey);
+    
+    if (!lastOpenedData) {
+      // If no data is found, return false or handle accordingly
+      console.log("No last opened data found.");
+      return false;
+    }
+    
+    console.log("lastOpenedData", lastOpenedData);
+    
+    const lastOpenedDate = new Date(lastOpenedData);
+    const currentTime = new Date();
+    
+    // Create dates representing the start of the day for comparison
+    const startOfToday = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate());
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setDate(endOfToday.getDate() + 1); // End of today
+
+    console.log("lastOpenedDate", lastOpenedDate);
+    
+    // Check if the lastOpenedDate falls within today
+    return lastOpenedDate >= startOfToday && lastOpenedDate < endOfToday;
+  } catch (error) {
+    console.error("Error checking last opened date:", error);
+    return false; // Return false or handle the error as needed
+  }
 }
 
 async function debugFunction() {
