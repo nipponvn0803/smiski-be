@@ -77,9 +77,9 @@ app.post("/api/images/:boxType", async (req, res) => {
   res.status(201).json({ message: "Image URL saved successfully" });
 });
 
-app.get("/api/can-open-box", (req, res) => {
+app.get("/api/can-open-box", async (req, res) => {
   const canOpen = !hasOpenedToday();
-  const debugValue = debugFunction()
+  const debugValue = await debugFunction()
   res.json({ canOpen, ...debugValue });
 });
 
