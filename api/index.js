@@ -62,8 +62,8 @@ app.post("/api/images/:boxType", async (req, res) => {
   if (data === "") {
     // Update the opened images and the last opened date
     await kv.hset(dataSetKey, {
-      boxType: imageUrl,
-      lastOpenedDataKey: new Date().toISOString(),
+      [boxType]: imageUrl,
+      [lastOpenedDataKey]: new Date().toISOString(),
     });
 
     return res.status(201).json({ message: "Image URL saved successfully" });
@@ -72,8 +72,8 @@ app.post("/api/images/:boxType", async (req, res) => {
   const concatURL = data + "," + imageUrl;
   // Update the opened images and the last opened date
   await kv.hset(dataSetKey, {
-    boxType: concatURL,
-    lastOpenedDataKey: new Date().toISOString(),
+    [boxType]: concatURL,
+    [lastOpenedDataKey]: new Date().toISOString(),
   });
 
   return res.status(201).json({ message: "Image URL saved successfully" });
