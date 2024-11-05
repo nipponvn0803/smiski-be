@@ -78,9 +78,9 @@ app.post("/api/images/:boxType", async (req, res) => {
 });
 
 app.get("/api/can-open-box", async (req, res) => {
-  const canOpen = !hasOpenedToday();
+  const openedToday = await hasOpenedToday();
   const debugValue = await debugFunction()
-  res.json({ canOpen, ...debugValue });
+  res.json({ canOpen: !openedToday, ...debugValue });
 });
 
 app.get("/", (req, res) => res.send("Express on Vercel123"));
