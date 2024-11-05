@@ -33,7 +33,7 @@ async function debugFunction() {
 app.get("/api/images/:boxType", async (req, res) => {
   const { boxType } = req.params;
   const data = await kv.hget(dataSetKey, boxType);
-
+  console.log("GET endpoint", boxType);
   if (data) {
     return res.status(400).json({ error: "Invalid box type" });
   }
@@ -42,8 +42,8 @@ app.get("/api/images/:boxType", async (req, res) => {
 });
 
 app.post("/api/images/:boxType", async (req, res) => {
-  const { boxType } = req.params;
-  const { imageUrl } = req.body;
+  const boxType = req.params.boxType;
+  const imageUrl = req.body.imageUrl;
 
   console.log(req);
 
