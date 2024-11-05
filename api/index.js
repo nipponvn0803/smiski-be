@@ -31,14 +31,15 @@ async function debugFunction() {
 }
 
 app.get("/api/images/:boxType", async (req, res) => {
-  const { boxType } = req.params;
+  const boxType = req.params.boxType;
   const data = await kv.hget(dataSetKey, boxType);
   console.log("GET endpoint", boxType);
-  if (data) {
+  console.log("GET endpoint data", data);
+  if (!data) {
     return res.status(400).json({ error: "Invalid box type" });
   }
 
-  res.json(data);
+  return res.json(data);
 });
 
 app.post("/api/images/:boxType", async (req, res) => {
@@ -82,7 +83,7 @@ app.post("/api/images/:boxType", async (req, res) => {
 app.get("/api/can-open-box", async (req, res) => {
   const openedToday = await hasOpenedToday();
   const debugValue = await debugFunction();
-  res.json({ canOpen: !openedToday, ...debugValue });
+  return res.json({ canOpen: !openedToday, ...debugValue });
 });
 
 app.get("/", (req, res) => res.send("Express on Vercel123"));
